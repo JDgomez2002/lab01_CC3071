@@ -3,7 +3,7 @@ from node import Node
 class SyntaxTree:
     def __init__(self, regex):
       self.root = self.regex_to_syntax_tree(regex)
-      print(self.root)
+   
 
     def regex_to_syntax_tree(self,regex):
       
