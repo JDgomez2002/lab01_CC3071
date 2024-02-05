@@ -1,67 +1,122 @@
 from node import Node
+from utils import shunting_yard
+from render import render_tree
 
 class SyntaxTree:
     def __init__(self, regex):
-      self.root = self.regex_to_syntax_tree(regex)
-   
+        self.regex = shunting_yard(regex)
+        self.root = self.syntax_tree(self.regex)
+        populate_node_map(self.root)
+        calc_nullable(self.root)
+        calc_firstpos(self.root)
+        calc_lastpos(self.root)
+        calc_followpos(self.root)
+        
+    def syntax_tree(self, expression):
+        stack = []
+        for char in expression:
+            
+            if char not in {"*", "|", "."}:
+                stack.append(Node(char))
+            else:
+                if char == "*":
+                    operand = stack.pop()
+                    stack.append(Node(char, operand))
+                else:
+                    right = stack.pop()
+                    left = stack.pop()
+                    stack.append(Node(char, left, right))
 
-    def regex_to_syntax_tree(self,regex):
-      
-      postfix_regex = shunting_yard(regex)
-      
-      stack = []
-      for char in postfix_regex:
-          if char not in {'*', '|', '.'}:
-              stack.append(Node(char))
-          else:
-              if char == '*':
-                  operand = stack.pop()
-                  stack.append(Node(char, operand))
-              else:
-                  right = stack.pop()
-                  left = stack.pop()
-                  stack.append(Node(char, left, right))
+        return stack.pop() if stack else None
+    
+    def render(self):
+        render_tree(self.root, self.regex)
 
-      return stack.pop() if stack else None
-      
-      
-def shunting_yard(regex):
-      precedence = {'|': 1, '.': 2, '*': 3}  
-      output = []
-      stack = []
-      
-      regex = add_concatenation_symbol(regex)
+node_map = {} 
 
-      for token in regex:
-          if token.isalpha():
-              output.append(token)
-          elif token == '(':  
-              stack.append(token)
-          elif token == ')':
-              while stack and stack[-1] != '(':
-                  output.append(stack.pop())
-              stack.pop()  
-          else: 
-              while stack and stack[-1] != '(' and precedence[token] <= precedence[stack[-1]]:
-                  output.append(stack.pop())
-              stack.append(token)
+def populate_node_map(node):
+    if node is None:
+        return
+    if node.value not in {"*", "|", "."}:  # Leaf node
+        node_map[node.id] = node
+    # Recursively populate the map for all nodes
+    populate_node_map(node.left)
+    populate_node_map(node.right)
+    
+def calc_nullable(node):
+    if node is None:
+        return
+    # Leafs :)
+    if node.value not in {"*", "|", "."}:
+        node.nullable = False
+    else:
+        calc_nullable(node.left)
+        calc_nullable(node.right)
+        if node.value == "*":
+            node.nullable = True
+        elif node.value == "|":
+            node.nullable = node.left.nullable or node.right.nullable
+        elif node.value == ".":
+            node.nullable = node.left.nullable and node.right.nullable
+            
+def calc_firstpos(node):
+    if node is None:
+        return set()  
+    if node.value not in {"*", "|", "."}:
+        node.firstpos = {node.id}
+    else:
+        left_firstpos = calc_firstpos(node.left)
+        right_firstpos = calc_firstpos(node.right) if node.right else set()  
+        
+        if node.value == "|":
+            node.firstpos = left_firstpos.union(right_firstpos)
+        elif node.value == ".":
+            if node.left and node.left.nullable:
+                node.firstpos = left_firstpos.union(right_firstpos)
+            else:
+                node.firstpos = left_firstpos
+        elif node.value == "*":
+            node.firstpos = left_firstpos
+    
+    return node.firstpos
 
-      while stack:
-          output.append(stack.pop())
+def calc_lastpos(node):
+    if node is None:
+        return set()
+    if node.value not in {"*", "|", "."}:
+        node.lastpos=  {node.id}
+    else:
+        left_lastpos = calc_lastpos(node.left)
+        right_lastpos = calc_lastpos(node.right) if node.right else set() 
+        
+        if node.value == "|":
+            node.lastpos = left_lastpos.union(right_lastpos)
+        elif node.value == ".":
+            if node.right and node.right.nullable:
+                node.lastpos = left_lastpos.union(right_lastpos)
+            else:
+                node.lastpos = right_lastpos
+        elif node.value == "*":
+            node.lastpos = left_lastpos
+    return node.lastpos
 
-      return ''.join(output)
+def calc_followpos(node):
+
+    if node is None:
+        return
+
+    calc_followpos(node.left)
+    calc_followpos(node.right)
+    
+    if node.value == '.':
+        for position in node.left.lastpos:
+            node_map[position].followpos.update(node.right.firstpos)
+    elif node.value == '*':
+        for position in node.lastpos:
+            node_map[position].followpos.update(node.firstpos)
 
 
-def add_concatenation_symbol(regex):
-        output = ""
-        operators = set(['.', '|', '*', '(', ')'])  # regex operators
-        for i in range(len(regex) - 1):
-            output += regex[i]
-            if (regex[i] not in operators and regex[i+1] not in operators) or \
-              (regex[i] not in operators and regex[i+1] == '(') or \
-              (regex[i] == ')' and regex[i+1] not in operators) or \
-              (regex[i] == '*' and regex[i+1] not in operators) or \
-              (regex[i] == '*' and regex[i+1] == '('):
-                output += '.'
-        output += regex[-1]
-        return output
+
+
+
+
