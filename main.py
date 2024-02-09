@@ -6,19 +6,20 @@ from nfa_dfa import nfa_to_dfa
 
 
 def main():
-    directDFA = DirectDFA("(a|b)*abb#")
+    directDFA = DirectDFA("(a|b)c*#")
     directDFA.render()
-    regex = "(a|b)*abb"
+    regex = "(a|b)c*"
     tree = SyntaxTree(regex)
     tree.render()
     nfa = regex_to_nfa(regex)
-    print(nfa.input_symbols())
     render_nfa(nfa)
     dfa = nfa_to_dfa(nfa)
     render_dfa(dfa)
-    dfa.printme()
+    # dfa.printme()
     dfa.minimize()
     render_dfa(dfa, "min_dfa")
+
+    print(nfa.run("acccc"))
 
 
 if __name__ == "__main__":

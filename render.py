@@ -7,6 +7,7 @@ def render_tree(root):
     graph.write_svg("result/tree.svg")
     return graph
 
+
 def add_edges(graph, node, parent_id=None):
     if node is not None:
         node_id = str(id(node))
@@ -120,6 +121,7 @@ def render_dfa(dfa, name="dfa"):
                 pydotplus.Node(
                     str(dfa_state.id),
                     shape="doublecircle" if dfa_state.is_accepting else "circle",
+                    style="filled" if dfa_state.is_start else "",
                 )
             )
             seen_states.add(dfa_state.id)
@@ -132,7 +134,7 @@ def render_dfa(dfa, name="dfa"):
                         shape="doublecircle"
                         if new_dfa_state.is_accepting
                         else "circle",
-                        color="green" if new_dfa_state.is_start else "black",
+                        color="black",
                     )
                 )
                 seen_states.add(new_dfa_state.id)

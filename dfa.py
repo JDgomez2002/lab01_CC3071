@@ -136,6 +136,7 @@ class DFA:
 
         # Identify the new initial and final states
         new_initial = old_to_new[self.initial_state]
+        new_initial.is_start = True
         new_final_states = [state for state in new_states if state.is_accepting]
 
         # Update the DFA with the minimized information
@@ -146,6 +147,6 @@ class DFA:
         # self.remove_dead_states()
 
         # print transitions as tuples (from, to, symbol)
-        print("minimized uwu")
+        # print("minimized uwu")
 
-        self.printme()
+        # self.printme()
