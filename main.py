@@ -8,7 +8,7 @@ from nfa_dfa import nfa_to_dfa
 def main():
     directDFA = DirectDFA("a(b|c)*d#")
     directDFA.render()
-    directDFA.run("abbcd")
+    directDFA.run("abbc")
 
     regex = "a(b|c)*d"
     tree = SyntaxTree(regex)
