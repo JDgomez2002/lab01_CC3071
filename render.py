@@ -5,7 +5,7 @@ def render_tree(root):
     graph = create_graph(root)
     graph.write_png("result/tree.png")
     graph.write_svg("result/tree.svg")
-
+    return graph
 
 def add_edges(graph, node, parent_id=None):
     if node is not None:
