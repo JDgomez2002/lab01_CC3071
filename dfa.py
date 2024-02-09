@@ -75,6 +75,35 @@ class DFA:
         for state in self.states:
             print(state)
 
+    def run(self, input_string: str):
+        state = self.initial_state
+        print(
+            "Accepting states:",
+            [state.id for state in self.states if state.is_accepting],
+        )
+        for symbol in input_string:
+            print(
+                "Reading:",
+                symbol,
+            )
+            if symbol not in state.transitions:
+                return "Rejected"
+
+            print(
+                "Current state:",
+                state.id,
+                "Next state:",
+                state.transitions[symbol].id,
+                "Symbol:",
+                symbol,
+            )
+            state = state.transitions[symbol]
+
+        if state.is_accepting:
+            return "Accepted"
+
+        return "Rejected"
+
     def minimize(self):
         # Step 1: Initial partitioning into accepting and non-accepting states
         partitions = {
