@@ -19,6 +19,8 @@ class DirectDFA:
         self.states, self.transitions = self.directConstruction(regex)
 
     def directConstruction(self, regex):
+        if regex[-1] != '#':
+            regex += '#' # add # to the end of the regex
         Dstates = []
         Dtransitions = []
         tree = SyntaxTree(regex)
@@ -70,6 +72,27 @@ class DirectDFA:
     def render(self):
         create_direct_dfa_graph(self.states, self.transitions)
 
-# states, transitions = directConstruction("(a|b)*ab#")
-
-
+    def run(self, string):
+        if string[-1] != '#':
+            string += '#'
+        currentState = self.states[0]
+        for char in string:
+            for transition in self.transitions:
+                # print(currentState.state,transition.originState,transition.symbol,'-',char,transition.destinationState)
+                if set(transition.originState) == set(currentState.state) and transition.symbol == char and char != '#':
+                    for state in self.states:
+                        if state.state == transition.destinationState:
+                            currentState = state
+                            # print('\tEureka!', char, currentState.state)
+                            break
+                    break
+        # for transition in self.transitions:
+        #     print(transition.symbol, transition.originState, transition.destinationState)
+        # for state in self.states:
+        #     print(state.state, state.accepting)
+        if currentState.accepting:
+            print(f'Direct DFA simulation with {string}: {True}')
+            return True
+        else: 
+            print(f'Direct DFA simulation with {string}: {False}')
+            return False
