@@ -1,11 +1,13 @@
 from syntax_tree import SyntaxTree
-from directConstruction import directConstruction
+from directConstruction import DirectDFA
 from render import render_nfa, render_dfa
 from regex_nfa import regex_to_nfa
 from nfa_dfa import nfa_to_dfa
 
 
 def main():
+    directDFA = DirectDFA("(a|b)*abb#")
+    directDFA.render()
     regex = "(a|b)*abb"
     tree = SyntaxTree(regex)
     tree.render()

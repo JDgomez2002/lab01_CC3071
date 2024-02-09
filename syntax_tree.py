@@ -8,7 +8,7 @@ class SyntaxTree:
         self.operands = self.getOperands(regex)
         self.regex = shunting_yard(regex)
         self.root = self.syntax_tree(self.regex)
-        populate_node_map(self.root)
+        self.node_map = populate_node_map(self.root)
         calc_nullable(self.root)
         calc_firstpos(self.root)
         calc_lastpos(self.root)
@@ -53,6 +53,7 @@ def populate_node_map(node):
     # Recursively populate the map for all nodes
     populate_node_map(node.left)
     populate_node_map(node.right)
+    return node_map
 
 
 def calc_nullable(node):
