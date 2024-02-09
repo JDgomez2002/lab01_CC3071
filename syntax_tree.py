@@ -4,6 +4,7 @@ from render import render_tree
 
 class SyntaxTree:
     def __init__(self, regex):
+        self.operands = self.getOperands(regex)
         self.regex = shunting_yard(regex)
         self.root = self.syntax_tree(self.regex)
         populate_node_map(self.root)
@@ -11,7 +12,7 @@ class SyntaxTree:
         calc_firstpos(self.root)
         calc_lastpos(self.root)
         calc_followpos(self.root)
-        
+
     def syntax_tree(self, expression):
         stack = []
         for char in expression:
@@ -29,10 +30,18 @@ class SyntaxTree:
 
         return stack.pop() if stack else None
     
+    def getOperands(self, regex):
+        operands = set()
+        for char in regex:
+            if char not in {"*", "|", ".", "ϵ", "(", ")"}:
+                operands.add(char)
+        return operands
+    
     def render(self):
         render_tree(self.root, self.regex)
+        return node_map
 
-node_map = {} 
+node_map = {}
 
 def populate_node_map(node):
     if node is None:
@@ -47,12 +56,12 @@ def calc_nullable(node):
     if node is None:
         return
     # Leafs :)
-    if node.value not in {"*", "|", "."}:
+    if node.value not in {"*", "|", ".", "ϵ"}:
         node.nullable = False
     else:
         calc_nullable(node.left)
         calc_nullable(node.right)
-        if node.value == "*":
+        if node.value == "*" or node.value == "ϵ":
             node.nullable = True
         elif node.value == "|":
             node.nullable = node.left.nullable or node.right.nullable
@@ -61,8 +70,8 @@ def calc_nullable(node):
             
 def calc_firstpos(node):
     if node is None:
-        return set()  
-    if node.value not in {"*", "|", "."}:
+        return set()
+    if node.value not in {"*", "|", ".", "ϵ"}:
         node.firstpos = {node.id}
     else:
         left_firstpos = calc_firstpos(node.left)
@@ -83,7 +92,7 @@ def calc_firstpos(node):
 def calc_lastpos(node):
     if node is None:
         return set()
-    if node.value not in {"*", "|", "."}:
+    if node.value not in {"*", "|", ".", "ϵ"}:
         node.lastpos=  {node.id}
     else:
         left_lastpos = calc_lastpos(node.left)
