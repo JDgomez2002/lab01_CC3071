@@ -1,8 +1,12 @@
-from nfa import NFA, DFAState, DFA
+from dfa import DFA, DFAState
+from nfa import NFA
 
 
 def nfa_to_dfa(nfa: NFA):
     initial_dfa_state = DFAState(nfa.initial_state.epsilon_closure())
+    initial_dfa_state.is_accepting = any(
+        state.is_accepting for state in initial_dfa_state.nfa_states
+    )
     dfa_states = {frozenset(initial_dfa_state.nfa_states): initial_dfa_state}
     queue = [initial_dfa_state]
     input_symbols = nfa.input_symbols()
@@ -21,6 +25,9 @@ def nfa_to_dfa(nfa: NFA):
             new_nfa_states_frozenset = frozenset(new_nfa_states)
             if new_nfa_states_frozenset not in dfa_states:
                 new_dfa_state = DFAState(new_nfa_states)
+                new_dfa_state.is_accepting = any(
+                    state.is_accepting for state in new_dfa_state.nfa_states
+                )
                 dfa_states[new_nfa_states_frozenset] = new_dfa_state
                 queue.append(new_dfa_state)
 

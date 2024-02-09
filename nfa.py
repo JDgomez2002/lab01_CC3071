@@ -13,6 +13,7 @@ class State:
     def __init__(self, transitions: List[Transition] = None):
         self.transitions = []
         self.id = State.count
+        self.is_accepting = False
         State.count += 1
 
         if transitions:
@@ -20,6 +21,17 @@ class State:
 
     def add_transition(self, transition: Transition):
         self.transitions.append(transition)
+
+    def epsilon_closure(self):
+        closure = {self}
+        stack = [self]
+        while stack:
+            current_state = stack.pop()
+            for transition in current_state.transitions:
+                if transition.input == "e" and transition.new_state not in closure:
+                    closure.add(transition.new_state)
+                    stack.append(transition.new_state)
+        return closure
 
 
 class NFA:
@@ -44,4 +56,5 @@ class NFA:
             transition.input
             for state in self.states
             for transition in state.transitions
+            if transition.input != "e"  # Exclude epsilon transitions
         )

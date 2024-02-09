@@ -7,7 +7,7 @@ def regex_to_nfa(regex: str) -> NFA:
     expression = shunting_yard(regex)
 
     for token in expression:
-        if token.isalpha():
+        if token.isalnum():
             state1, state2 = State(), State()
             state1.add_transition(Transition(token, state2))
             nfa_stack.append(NFA(state1, state2))
@@ -32,7 +32,10 @@ def regex_to_nfa(regex: str) -> NFA:
             nfa1.final_state.add_transition(Transition("e", nfa2.initial_state))
             nfa_stack.append(NFA(nfa1.initial_state, nfa2.final_state))
 
-    return nfa_stack.pop()
+    final_nfa = nfa_stack.pop()
+    final_nfa.final_state.is_accepting = True
+
+    return final_nfa
 
 
 def get_all_states(initial_state: State, visited: set[State] = None) -> set[State]:

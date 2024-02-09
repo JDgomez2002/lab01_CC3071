@@ -1,4 +1,3 @@
-
 def shunting_yard(regex):
     precedence = {"|": 1, ".": 2, "*": 3}
     queue = []
@@ -7,7 +6,7 @@ def shunting_yard(regex):
     regex = add_concat(regex)
 
     for token in regex:
-        if token.isalpha() or token == "#":
+        if token.isalnum() or token == "#":
             queue.append(token)
         elif token == "(":
             stack.append(token)
@@ -45,4 +44,3 @@ def add_concat(regex):
             output += "."
     output += regex[-1]
     return output
-  

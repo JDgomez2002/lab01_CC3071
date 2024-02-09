@@ -1,10 +1,10 @@
 import pydotplus
 
 
-def render_tree(root, regex):
+def render_tree(root):
     graph = create_graph(root)
-    graph.write_png(f"result/{regex}.png")
-    graph.write_svg(f"result/{regex}.svg")
+    graph.write_png("result/tree.png")
+    graph.write_svg("result/tree.svg")
 
 
 def add_edges(graph, node, parent_id=None):
@@ -51,5 +51,46 @@ def render_nfa(nfa):
 
     add_states(nfa.initial_state)
 
-    graph.write_png("nfa.png")
-    graph.write_svg("nfa.svg")
+    graph.write_png("result/nfa.png")
+    graph.write_svg("result/nfa.svg")
+
+
+def render_dfa(dfa):
+    graph = pydotplus.Dot(graph_type="digraph")
+    graph.set_rankdir("LR")
+    graph.set_prog("neato")
+
+    seen_states = set()
+
+    for dfa_state in dfa.states:
+        if dfa_state.id not in seen_states:
+            graph.add_node(
+                pydotplus.Node(
+                    str(dfa_state.id),
+                    shape="doublecircle" if dfa_state.is_accepting else "circle",
+                )
+            )
+            seen_states.add(dfa_state.id)
+
+        for input, new_dfa_state in dfa_state.transitions.items():
+            if new_dfa_state.id not in seen_states:
+                graph.add_node(
+                    pydotplus.Node(
+                        str(new_dfa_state.id),
+                        shape="doublecircle"
+                        if new_dfa_state.is_accepting
+                        else "circle",
+                    )
+                )
+                seen_states.add(new_dfa_state.id)
+
+            graph.add_edge(
+                pydotplus.Edge(
+                    str(dfa_state.id),
+                    str(new_dfa_state.id),
+                    label=str(input),
+                )
+            )
+
+    graph.write_png("result/dfa.png")
+    graph.write_svg("result/dfa.svg")
