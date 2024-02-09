@@ -7,6 +7,7 @@ def nfa_to_dfa(nfa: NFA):
     initial_dfa_state.is_accepting = any(
         state.is_accepting for state in initial_dfa_state.nfa_states
     )
+
     dfa_states = {frozenset(initial_dfa_state.nfa_states): initial_dfa_state}
     queue = [initial_dfa_state]
     input_symbols = nfa.input_symbols()
@@ -33,4 +34,5 @@ def nfa_to_dfa(nfa: NFA):
 
             current_dfa_state.transitions[symbol] = dfa_states[new_nfa_states_frozenset]
 
+    initial_dfa_state.is_start = True
     return DFA(initial_dfa_state, list(dfa_states.values()))

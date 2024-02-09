@@ -29,19 +29,21 @@ class SyntaxTree:
                     stack.append(Node(char, left, right))
 
         return stack.pop() if stack else None
-    
+
     def getOperands(self, regex):
         operands = set()
         for char in regex:
             if char not in {"*", "|", ".", "ϵ", "(", ")"}:
                 operands.add(char)
         return operands
-    
+
     def render(self):
-        render_tree(self.root, self.regex)
+        render_tree(self.root)
         return node_map
 
+
 node_map = {}
+
 
 def populate_node_map(node):
     if node is None:
@@ -96,7 +98,7 @@ def calc_lastpos(node):
     if node is None:
         return set()
     if node.value not in {"*", "|", ".", "ϵ"}:
-        node.lastpos=  {node.id}
+        node.lastpos = {node.id}
     else:
         left_lastpos = calc_lastpos(node.left)
         right_lastpos = calc_lastpos(node.right) if node.right else set()

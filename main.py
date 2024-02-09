@@ -6,7 +6,7 @@ from nfa_dfa import nfa_to_dfa
 
 
 def main():
-    regex = "1001"
+    regex = "(a|b)*abb"
     tree = SyntaxTree(regex)
     tree.render()
     nfa = regex_to_nfa(regex)
@@ -14,6 +14,9 @@ def main():
     render_nfa(nfa)
     dfa = nfa_to_dfa(nfa)
     render_dfa(dfa)
+    dfa.printme()
+    dfa.minimize()
+    render_dfa(dfa, "min_dfa")
 
 
 if __name__ == "__main__":

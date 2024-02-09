@@ -22,6 +22,7 @@ def create_graph(root):
     add_edges(graph, root)
     return graph
 
+
 def create_direct_dfa_graph(states, transitions):
     # Convert sets to strings
     # states = [str(state) for state in states]
@@ -37,7 +38,7 @@ def create_direct_dfa_graph(states, transitions):
     state_nodes = {}
     num = 0
     for state in states:
-        if state.state != {'Ø'}:
+        if state.state != {"Ø"}:
             node = pydotplus.Node(num)
             node.set_name(str(state.state))
             if state.initial:
@@ -57,8 +58,12 @@ def create_direct_dfa_graph(states, transitions):
             num += 1
 
     for transition in transitions:
-        if transition.symbol != '#':
-            edge = pydotplus.Edge(state_nodes[str(transition.originState)], state_nodes[str(transition.destinationState)], label=str(transition.symbol))
+        if transition.symbol != "#":
+            edge = pydotplus.Edge(
+                state_nodes[str(transition.originState)],
+                state_nodes[str(transition.destinationState)],
+                label=str(transition.symbol),
+            )
             dot.add_edge(edge)
 
     pydotplus.find_graphviz()
@@ -68,6 +73,7 @@ def create_direct_dfa_graph(states, transitions):
     # Save or display the graph
     png_file_path = "result/direct_dfa.png"
     graph.write_png(png_file_path)  # Save PNG file
+
 
 def render_nfa(nfa):
     graph = pydotplus.Dot(graph_type="digraph")
@@ -101,7 +107,7 @@ def render_nfa(nfa):
     graph.write_svg("result/nfa.svg")
 
 
-def render_dfa(dfa):
+def render_dfa(dfa, name="dfa"):
     graph = pydotplus.Dot(graph_type="digraph")
     graph.set_rankdir("LR")
     graph.set_prog("neato")
@@ -126,6 +132,7 @@ def render_dfa(dfa):
                         shape="doublecircle"
                         if new_dfa_state.is_accepting
                         else "circle",
+                        color="green" if new_dfa_state.is_start else "black",
                     )
                 )
                 seen_states.add(new_dfa_state.id)
@@ -138,5 +145,5 @@ def render_dfa(dfa):
                 )
             )
 
-    graph.write_png("result/dfa.png")
-    graph.write_svg("result/dfa.svg")
+    graph.write_png(f"result/{name}.png")
+    graph.write_svg(f"result/{name}.svg")
