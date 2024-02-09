@@ -1,0 +1,45 @@
+from utils import shunting_yard
+from nfa import NFA, State, Transition
+
+
+def regex_to_nfa(regex: str) -> NFA:
+    nfa_stack = []
+    expression = shunting_yard(regex)
+
+    for token in expression:
+        if token.isalpha():
+            state1, state2 = State(), State()
+            state1.add_transition(Transition(token, state2))
+            nfa_stack.append(NFA(state1, state2))
+        elif token == "*":
+            nfa = nfa_stack.pop()
+            state1, state2 = State(), State()
+            state1.add_transition(Transition("e", nfa.initial_state))
+            state1.add_transition(Transition("e", state2))
+            nfa.final_state.add_transition(Transition("e", nfa.initial_state))
+            nfa.final_state.add_transition(Transition("e", state2))
+            nfa_stack.append(NFA(state1, state2))
+        elif token == "|":
+            nfa2, nfa1 = nfa_stack.pop(), nfa_stack.pop()
+            state1, state2 = State(), State()
+            state1.add_transition(Transition("e", nfa1.initial_state))
+            state1.add_transition(Transition("e", nfa2.initial_state))
+            nfa1.final_state.add_transition(Transition("e", state2))
+            nfa2.final_state.add_transition(Transition("e", state2))
+            nfa_stack.append(NFA(state1, state2))
+        elif token == ".":
+            nfa2, nfa1 = nfa_stack.pop(), nfa_stack.pop()
+            nfa1.final_state.add_transition(Transition("e", nfa2.initial_state))
+            nfa_stack.append(NFA(nfa1.initial_state, nfa2.final_state))
+
+    return nfa_stack.pop()
+
+
+def get_all_states(initial_state: State, visited: set[State] = None) -> set[State]:
+    if visited is None:
+        visited = set()
+    visited.add(initial_state)
+    for transition in initial_state.transitions:
+        if transition.new_state not in visited:
+            get_all_states(transition.new_state, visited)
+    return visited
