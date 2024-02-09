@@ -1,108 +1,26 @@
 import pydotplus
 
-def render_tree(root,regex):
+
+def render_tree(root):
     graph = create_graph(root)
-    graph.write_png(f'result/expression.png')
-    graph.write_svg(f'result/expression.svg')
+    graph.write_png("result/tree.png")
+    graph.write_svg("result/tree.svg")
+
 
 def add_edges(graph, node, parent_id=None):
     if node is not None:
         node_id = str(id(node))
-        graph.add_node(pydotplus.Node(node_id, label=str(node).replace('set()','{Ø}'), shape='circle'))
+        graph.add_node(pydotplus.Node(node_id, label=str(node), shape="circle"))
         if parent_id is not None:
             graph.add_edge(pydotplus.Edge(parent_id, node_id))
         add_edges(graph, node.left, node_id)
         add_edges(graph, node.right, node_id)
 
+
 def create_graph(root):
-    graph = pydotplus.Dot(graph_type='graph')
+    graph = pydotplus.Dot(graph_type="graph")
     add_edges(graph, root)
     return graph
-
-def create_dfa_graph(states, acceptance_states, transitions, symbols, start_state):
-    # Convert sets to strings
-    states = [str(state) for state in states]
-    start_state = str(start_state)
-    acceptance_states = [str(state) for state in acceptance_states]
-
-    # Create a DOT format representation of the DFA
-    dot = pydotplus.Dot()
-    dot.set_rankdir("LR")  # Use 'TB' for top to bottom layout
-    dot.set_prog("neato")
-
-    # Create nodes for each state
-    state_nodes = {}
-    num = 0
-    for state in states:
-        node = pydotplus.Node(num)
-        if state == start_state:
-            node.set_name("Start")
-            node.set_shape("circle")
-            node.set_style("filled")
-
-        if state in acceptance_states:
-            node.set_shape("doublecircle")  # Final states are double circled
-        node.set_fontsize(12)  # Set font size
-        node.set_width(0.6)  # Set the desired width
-        node.set_height(0.6)  # Set the desired height
-        state_nodes[state] = node
-        dot.add_node(node)
-
-        num += 1
-
-    # Add transitions as edges
-    for (source, symbol, target) in transitions:
-        edge = pydotplus.Edge(state_nodes[str(source)], state_nodes[str(target)], label=symbol)
-        dot.add_edge(edge)
-
-    return dot
-
-def write_info_to_file(states, final_states, transitions, symbols, start_state, file_path):
-    with open(file_path, 'w') as file:
-        file.write("Estados = " + str(states) + "\n")
-        file.write("Aceptacion = " + str(final_states) + "\n")
-        file.write("Transicion = " + str(transitions) + "\n")
-        file.write("Simbolos = " + str(symbols) + "\n")
-        file.write("Inicio = " + str(start_state) + "\n")
-
-def exec(estados, simbolos, estados_inicial, estados_aceptacion, transiciones):
-    symbols = simbolos
-    start_state = estados_inicial
-
-    dfa_states, acceptance_states, dfa_transitions, start_state = dfa_to_nfa(
-        estados,
-        symbols,
-        start_state,
-        estados_aceptacion,
-        transiciones,
-    )
-
-    # Remove entries with an empty set from dfa_states
-    dfa_states = [state for state in dfa_states if state]
-
-    # Remove entries with an empty set from acceptance_states
-    acceptance_states = [state for state in acceptance_states if state]
-
-    # Remove entries with an empty set from dfa_transitions
-    dfa_transitions = [(state1, symbol, state2) for state1, symbol, state2 in dfa_transitions if state1 and state2]
-
-    states = dfa_states
-    final_states = acceptance_states
-    transitions = dfa_transitions
-
-    # Write information to a text file
-    write_info_to_file(states, final_states, transitions, symbols, start_state, "texts/dfa_info.txt")
-
-    pydotplus.find_graphviz()
-
-    graph = create_dfa_graph(states, final_states, transitions, symbols, start_state)
-
-    # Save or display the graph
-    png_file_path = "pngs/dfa_graph.png"
-    graph.write_png(png_file_path)  # Save PNG file
-
-    return states, symbols, transitions, start_state, final_states
-
 
 def create_direct_dfa_graph(states, transitions):
     # Convert sets to strings
@@ -150,3 +68,75 @@ def create_direct_dfa_graph(states, transitions):
     # Save or display the graph
     png_file_path = "result/direct_dfa.png"
     graph.write_png(png_file_path)  # Save PNG file
+
+def render_nfa(nfa):
+    graph = pydotplus.Dot(graph_type="digraph")
+    graph.set_rankdir("LR")
+    added_states = set()
+    graph.set_prog("neato")
+
+    def add_states(state):
+        if state.id in added_states:
+            return
+        added_states.add(state.id)
+        graph.add_node(
+            pydotplus.Node(
+                str(state.id),
+                shape="doublecircle" if state == nfa.final_state else "circle",
+            )
+        )
+        for transition in state.transitions:
+            graph.add_edge(
+                pydotplus.Edge(
+                    str(state.id),
+                    str(transition.new_state.id),
+                    label=str(transition.input),
+                )
+            )
+            add_states(transition.new_state)
+
+    add_states(nfa.initial_state)
+
+    graph.write_png("result/nfa.png")
+    graph.write_svg("result/nfa.svg")
+
+
+def render_dfa(dfa):
+    graph = pydotplus.Dot(graph_type="digraph")
+    graph.set_rankdir("LR")
+    graph.set_prog("neato")
+
+    seen_states = set()
+
+    for dfa_state in dfa.states:
+        if dfa_state.id not in seen_states:
+            graph.add_node(
+                pydotplus.Node(
+                    str(dfa_state.id),
+                    shape="doublecircle" if dfa_state.is_accepting else "circle",
+                )
+            )
+            seen_states.add(dfa_state.id)
+
+        for input, new_dfa_state in dfa_state.transitions.items():
+            if new_dfa_state.id not in seen_states:
+                graph.add_node(
+                    pydotplus.Node(
+                        str(new_dfa_state.id),
+                        shape="doublecircle"
+                        if new_dfa_state.is_accepting
+                        else "circle",
+                    )
+                )
+                seen_states.add(new_dfa_state.id)
+
+            graph.add_edge(
+                pydotplus.Edge(
+                    str(dfa_state.id),
+                    str(new_dfa_state.id),
+                    label=str(input),
+                )
+            )
+
+    graph.write_png("result/dfa.png")
+    graph.write_svg("result/dfa.svg")

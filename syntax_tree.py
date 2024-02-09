@@ -2,6 +2,7 @@ from node import Node
 from utils import shunting_yard
 from render import render_tree
 
+
 class SyntaxTree:
     def __init__(self, regex):
         self.operands = self.getOperands(regex)
@@ -16,7 +17,6 @@ class SyntaxTree:
     def syntax_tree(self, expression):
         stack = []
         for char in expression:
-            
             if char not in {"*", "|", "."}:
                 stack.append(Node(char))
             else:
@@ -51,7 +51,8 @@ def populate_node_map(node):
     # Recursively populate the map for all nodes
     populate_node_map(node.left)
     populate_node_map(node.right)
-    
+
+
 def calc_nullable(node):
     if node is None:
         return
@@ -67,7 +68,8 @@ def calc_nullable(node):
             node.nullable = node.left.nullable or node.right.nullable
         elif node.value == ".":
             node.nullable = node.left.nullable and node.right.nullable
-            
+
+
 def calc_firstpos(node):
     if node is None:
         return set()
@@ -75,8 +77,8 @@ def calc_firstpos(node):
         node.firstpos = {node.id}
     else:
         left_firstpos = calc_firstpos(node.left)
-        right_firstpos = calc_firstpos(node.right) if node.right else set()  
-        
+        right_firstpos = calc_firstpos(node.right) if node.right else set()
+
         if node.value == "|":
             node.firstpos = left_firstpos.union(right_firstpos)
         elif node.value == ".":
@@ -86,8 +88,9 @@ def calc_firstpos(node):
                 node.firstpos = left_firstpos
         elif node.value == "*":
             node.firstpos = left_firstpos
-    
+
     return node.firstpos
+
 
 def calc_lastpos(node):
     if node is None:
@@ -96,8 +99,8 @@ def calc_lastpos(node):
         node.lastpos=  {node.id}
     else:
         left_lastpos = calc_lastpos(node.left)
-        right_lastpos = calc_lastpos(node.right) if node.right else set() 
-        
+        right_lastpos = calc_lastpos(node.right) if node.right else set()
+
         if node.value == "|":
             node.lastpos = left_lastpos.union(right_lastpos)
         elif node.value == ".":
@@ -109,23 +112,17 @@ def calc_lastpos(node):
             node.lastpos = left_lastpos
     return node.lastpos
 
-def calc_followpos(node):
 
+def calc_followpos(node):
     if node is None:
         return
 
     calc_followpos(node.left)
     calc_followpos(node.right)
-    
-    if node.value == '.':
+
+    if node.value == ".":
         for position in node.left.lastpos:
             node_map[position].followpos.update(node.right.firstpos)
-    elif node.value == '*':
+    elif node.value == "*":
         for position in node.lastpos:
             node_map[position].followpos.update(node.firstpos)
-
-
-
-
-
-
