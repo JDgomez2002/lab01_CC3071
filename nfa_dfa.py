@@ -29,6 +29,11 @@ def nfa_to_dfa(nfa: NFA):
                 new_dfa_state.is_accepting = any(
                     state.is_accepting for state in new_dfa_state.nfa_states
                 )
+                # Skip dead states
+                if not new_dfa_state.is_accepting and not any(
+                    state.transitions for state in new_dfa_state.nfa_states
+                ):
+                    continue
                 dfa_states[new_nfa_states_frozenset] = new_dfa_state
                 queue.append(new_dfa_state)
 

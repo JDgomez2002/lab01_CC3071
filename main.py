@@ -6,9 +6,9 @@ from nfa_dfa import nfa_to_dfa
 
 
 def main():
-    directDFA = DirectDFA("(a|b)c*#")
+    directDFA = DirectDFA("a(b|c)*d#")
     directDFA.render()
-    regex = "(a|b)c*"
+    regex = "a(b|c)*d"
     tree = SyntaxTree(regex)
     tree.render()
     nfa = regex_to_nfa(regex)
@@ -19,7 +19,8 @@ def main():
     dfa.minimize()
     render_dfa(dfa, "min_dfa")
 
-    print(nfa.run("acccc"))
+    print(nfa.run("abd"))
+    print(dfa.run("abd"))
 
 
 if __name__ == "__main__":
