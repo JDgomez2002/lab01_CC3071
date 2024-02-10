@@ -29,7 +29,7 @@ def shunting_yard(regex):
     stack = []
 
     regex = format(regex)
-    print(regex)
+    print("regex", regex)
 
     for token in regex:
         if token.isalnum() or token in [

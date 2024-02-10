@@ -10,11 +10,9 @@ def main(regex, string):
     directDFA.render()
     directDFA.run(string)
 
-
-def main():
-    # directDFA = DirectDFA("a(b|c)*d#")
-    # directDFA.render()
-    # directDFA.run("abbc")
+    # minimizedDirectDFA = directDFA.minimize()
+    # minimizedDirectDFA.render()
+    # minimizedDirectDFA.run(string)
 
     tree = SyntaxTree(regex)
     tree.render()
@@ -23,16 +21,17 @@ def main():
     render_nfa(nfa)
     dfa = nfa_to_dfa(nfa)
     render_dfa(dfa)
-    # dfa.printme()
+
+    nfa.run(string)
+    dfa.run(string)
+
     dfa.minimize()
     render_dfa(dfa, "min_dfa")
-
-    # print(nfa.run("a"))
-    # print(dfa.run("b"))
+    dfa.run(string, True)
 
 
 if __name__ == "__main__":
     main(
-        "(a|b)*abb",
-        "babb",
+        "(b|b)abb(a|b)",
+        "babba",
     )

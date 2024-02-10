@@ -20,9 +20,21 @@ class SyntaxTree:
             if char not in {"*", "|", ".", "+", "?"}:
                 stack.append(Node(char))
             else:
-                if char in {"*", "+", "?"}:
+                if char == "*":
                     operand = stack.pop()
                     stack.append(Node(char, operand))
+                elif char == "+":
+                    operand = stack.pop()
+                    # same as op.op*
+                    kleene_star_node = Node("*", operand)
+                    concatenation_node = Node(".", operand, kleene_star_node)
+                    stack.append(concatenation_node)
+                elif char == "?":
+                    operand = stack.pop()
+                    # same as op | ϵ
+                    epsilon_node = Node("ϵ")
+                    alternation_node = Node("|", operand, epsilon_node)
+                    stack.append(alternation_node)
                 else:
                     right = stack.pop()
                     left = stack.pop()
@@ -59,39 +71,25 @@ def populate_node_map(node):
 def calc_nullable(node):
     if node is None:
         return
-    # Leaf nodes
-    if node.value not in {"*", "|", ".", "ϵ", "+", "?"}:
+    # Leafs :)
+    if node.value not in {"*", "|", ".", "ϵ"}:
         node.nullable = False
     else:
-        # Calculate nullable for child nodes recursively
         calc_nullable(node.left)
         calc_nullable(node.right)
-
-        # Check the operator to determine the nullable property
-        if node.value in {
-            "*",
-            "ϵ",
-            "?",
-        }:  # "*", "ϵ", and "?" operators make the node nullable
+        if node.value == "*" or node.value == "ϵ":
             node.nullable = True
-        elif (
-            node.value == "+"
-        ):  # "+" requires at least one occurrence, so follow the operand's nullable
-            node.nullable = (
-                node.left.nullable
-            )  # Assuming unary operator, so it only affects the left child
-        elif node.value == "|":  # "|" is nullable if either operand is nullable
+        elif node.value == "|":
             node.nullable = node.left.nullable or node.right.nullable
-        elif node.value == ".":  # "." is nullable if both operands are nullable
+        elif node.value == ".":
             node.nullable = node.left.nullable and node.right.nullable
 
 
 def calc_firstpos(node):
     if node is None:
         return set()
-    # Handle leaf nodes, including "ϵ"
-    if node.value not in {"*", "|", ".", "ϵ", "+", "?"}:
-        node.firstpos = {node.id}  # Assume each node has a unique id
+    if node.value not in {"*", "|", ".", "ϵ"}:
+        node.firstpos = {node.id}
     else:
         left_firstpos = calc_firstpos(node.left)
         right_firstpos = calc_firstpos(node.right) if node.right else set()
@@ -99,17 +97,12 @@ def calc_firstpos(node):
         if node.value == "|":
             node.firstpos = left_firstpos.union(right_firstpos)
         elif node.value == ".":
-            if node.left.nullable:
+            if node.left and node.left.nullable:
                 node.firstpos = left_firstpos.union(right_firstpos)
             else:
                 node.firstpos = left_firstpos
-        elif node.value in {
-            "*",
-            "+",
-        }:  # Both "*" and "+" have the same effect on firstpos
+        elif node.value == "*":
             node.firstpos = left_firstpos
-        elif node.value == "?":
-            node.firstpos = left_firstpos  # Optional, so firstpos is just the firstpos of the operand
 
     return node.firstpos
 
@@ -117,9 +110,8 @@ def calc_firstpos(node):
 def calc_lastpos(node):
     if node is None:
         return set()
-    # Handle leaf nodes, including "ϵ"
-    if node.value not in {"*", "|", ".", "ϵ", "+", "?"}:
-        node.lastpos = {node.id}  # Assume each node has a unique id
+    if node.value not in {"*", "|", ".", "ϵ"}:
+        node.lastpos = {node.id}
     else:
         left_lastpos = calc_lastpos(node.left)
         right_lastpos = calc_lastpos(node.right) if node.right else set()
@@ -127,20 +119,12 @@ def calc_lastpos(node):
         if node.value == "|":
             node.lastpos = left_lastpos.union(right_lastpos)
         elif node.value == ".":
-            if node.right.nullable:
+            if node.right and node.right.nullable:
                 node.lastpos = left_lastpos.union(right_lastpos)
             else:
                 node.lastpos = right_lastpos
-        elif node.value in {
-            "*",
-            "+",
-        }:  # Both "*" and "+" have the same effect on lastpos
+        elif node.value == "*":
             node.lastpos = left_lastpos
-        elif node.value == "?":
-            node.lastpos = (
-                left_lastpos  # Optional, so lastpos is just the lastpos of the operand
-            )
-
     return node.lastpos
 
 
@@ -148,16 +132,12 @@ def calc_followpos(node):
     if node is None:
         return
 
-    # Recursively calculate followpos for left and right children
     calc_followpos(node.left)
     calc_followpos(node.right)
 
     if node.value == ".":
-        # For concatenation, add right.firstpos to the followpos of each position in left.lastpos
         for position in node.left.lastpos:
             node_map[position].followpos.update(node.right.firstpos)
-    elif node.value in {"*", "+"}:
-        # For "*" and "+", add firstpos of the node to the followpos of each position in lastpos
+    elif node.value == "*":
         for position in node.lastpos:
             node_map[position].followpos.update(node.firstpos)
-    # No need for special handling of "?" for followpos calculation
