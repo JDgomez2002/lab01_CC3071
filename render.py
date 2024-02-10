@@ -59,7 +59,11 @@ def create_direct_dfa_graph(states, transitions, minimized=False):
             num += 1
 
     for transition in transitions:
-        if transition.symbol != "#" and str(transition.originState) in state_nodes and str(transition.destinationState) in state_nodes:
+        if (
+            transition.symbol != "#"
+            and str(transition.originState) in state_nodes
+            and str(transition.destinationState) in state_nodes
+        ):
             # print(transition.originState, transition.symbol, transition.destinationState)
             edge = pydotplus.Edge(
                 state_nodes[str(transition.originState)],
@@ -120,6 +124,10 @@ def render_dfa(dfa, name="dfa"):
     seen_states = set()
 
     for dfa_state in dfa.states:
+        # If the state has no transitions, skip it
+        if not dfa_state.transitions:
+            continue
+
         if dfa_state.id not in seen_states:
             graph.add_node(
                 pydotplus.Node(
@@ -138,7 +146,7 @@ def render_dfa(dfa, name="dfa"):
                         shape="doublecircle"
                         if new_dfa_state.is_accepting
                         else "circle",
-                        color="black",
+                        style="filled" if new_dfa_state.is_start else "",
                     )
                 )
                 seen_states.add(new_dfa_state.id)

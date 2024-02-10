@@ -90,9 +90,9 @@ class DFA:
             if symbol not in state.transitions:
                 # return "Rejected"
                 if not minimized:
-                    print(f'DFA simulation with {input_string}: {False}')
+                    print(f"DFA simulation with {input_string}: {False}")
                 else:
-                    print(f'Minimized DFA simulation with {input_string}: {False}')
+                    print(f"Minimized DFA simulation with {input_string}: {False}")
                 return "Rejected"
 
             # print(
@@ -107,14 +107,14 @@ class DFA:
 
         if not minimized:
             if state.is_accepting:
-                print(f'DFA simulation with {input_string}: {True}')
+                print(f"DFA simulation with {input_string}: {True}")
             else:
-                print(f'DFA simulation with {input_string}: {False}')
+                print(f"DFA simulation with {input_string}: {False}")
         else:
             if state.is_accepting:
-                print(f'Minimized DFA simulation with {input_string}: {True}')
+                print(f"Minimized DFA simulation with {input_string}: {True}")
             else:
-                print(f'Minimized DFA simulation with {input_string}: {False}')
+                print(f"Minimized DFA simulation with {input_string}: {False}")
 
         return "Rejected"
 
@@ -202,38 +202,3 @@ class DFA:
         # Update the DFA with the new structure
         self.initial_state = new_initial
         self.states = set(new_states)  # Assuming states are now stored in a set
-
-        # # Step 3: Create new states for each partition and update transitions
-        # new_states = [DFAState(partition) for partition in partitions]
-        # # Update is_accepting for new states and create a mapping from old to new states
-        # old_to_new = {}
-        # for new_state in new_states:
-        #     any_state = next(
-        #         iter(new_state.nfa_states)
-        #     )  # Any state from the partition to check if it was accepting
-        #     new_state.is_accepting = any_state.is_accepting
-        #     for old_state in new_state.nfa_states:
-        #         old_to_new[old_state] = new_state
-
-        # # Update transitions for new states
-        # for new_state in new_states:
-        #     for old_state in new_state.nfa_states:
-        #         for symbol, state in old_state.transitions.items():
-        #             new_state.transitions[symbol] = old_to_new[state]
-
-        # # Identify the new initial and final states
-        # new_initial = old_to_new[self.initial_state]
-        # new_initial.is_start = True
-        # new_final_states = [state for state in new_states if state.is_accepting]
-
-        # # Update the DFA with the minimized information
-        # self.initial_state = new_initial
-        # self.states = new_states
-        # self.final_state = new_final_states[0] if new_final_states else None
-
-        # self.remove_dead_states()
-
-        # print transitions as tuples (from, to, symbol)
-        # print("minimized uwu")
-
-        # self.printme()
