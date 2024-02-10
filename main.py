@@ -10,9 +10,9 @@ def main(regex, string):
     directDFA.render()
     directDFA.run(string)
 
-    # minimizedDirectDFA = directDFA.minimize()
-    # minimizedDirectDFA.render()
-    # minimizedDirectDFA.run(string)
+    # directDFA.minimize()
+    # directDFA.render(True)
+    # directDFA.run(string, True)
 
     tree = SyntaxTree(regex)
     tree.render()
@@ -28,7 +28,6 @@ def main(regex, string):
     dfa.minimize()
     render_dfa(dfa, "min_dfa")
     dfa.run(string, True)
-
 
 if __name__ == "__main__":
     main(

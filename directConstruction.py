@@ -69,14 +69,17 @@ class DirectDFA:
         
         return Dstates, Dtransitions, language
     
-    def render(self):
-        create_direct_dfa_graph(self.states, self.transitions)
+    def render(self, minimized=False):
+        create_direct_dfa_graph(self.states, self.transitions, minimized)
 
-    def run(self, string):
+    def run(self, string, minimized=False):
         # Verify if the string has chars that are not in the alphabet
         for char in string:
             if char not in self.alphabet:
-                print(f'Direct DFA simulation with {string}: {False}')
+                if not minimized:
+                    print(f'Direct DFA simulation with {string}: {False}')
+                else:
+                    print(f'Minimized Direct DFA simulation with {string}: {False}')
                 return False
         if string[-1] != '#':
             string += '#'
@@ -96,8 +99,54 @@ class DirectDFA:
         # for state in self.states:
         #     print(state.state, state.accepting)
         if currentState.accepting:
-            print(f'Direct DFA simulation with {string}: {True}')
+            if not minimized:
+                print(f'Direct DFA simulation with {string}: {True}')
+            else:
+                print(f'Minimized Direct DFA simulation with {string}: {True}')
             return True
         else: 
-            print(f'Direct DFA simulation with {string}: {False}')
+            if not minimized:
+                print(f'Direct DFA simulation with {string}: {False}')
+            else:
+                print(f'Minimized Direct DFA simulation with {string}: {False}')
             return False
+
+    def minimize(self):
+        P = [[state.state for state in self.states if state.accepting],
+            [state.state for state in self.states if not state.accepting]]
+        W = [state.state for state in self.states if state.accepting]
+
+        while W:
+            A = W.pop()
+            for c in self.alphabet:
+                X = [t.originState for t in self.transitions if t.symbol == c and t.destinationState in A]
+                for Y in P:
+                    if X.intersection(Y) and (Y - X):
+                        P.remove(Y)
+                        P.append(Y - X)
+                        P.append(X.intersection(Y))
+                        if Y in W:
+                            W.remove(Y)
+                            W.append(Y - X)
+                            W.append(X.intersection(Y))
+                        else:
+                            if len(X.intersection(Y)) <= len(Y - X):
+                                W.append(X.intersection(Y))
+                            else:
+                                W.append(Y - X)
+
+        # Create new states and transitions for the minimized DFA
+        new_states = [DirectDFAState(list(group)[0].state, True, list(group)[0].accepting, list(group)[0].initial) for group in P]
+        print('new_states',new_states)
+        new_transitions = []
+        for old_transition in self.transitions:
+            for new_state in new_states:
+                if old_transition.originState in [state.state for state in new_state.state]:
+                    new_originState = new_state
+                if old_transition.destinationState in [state.state for state in new_state.state]:
+                    new_destinationState = new_state
+            new_transitions.append(DirectDFATransition(old_transition.symbol, new_originState, new_destinationState))
+
+        # Replace the old states and transitions with the new ones
+        self.states = new_states
+        self.transitions = new_transitions

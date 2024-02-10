@@ -24,7 +24,7 @@ def create_graph(root):
     return graph
 
 
-def create_direct_dfa_graph(states, transitions):
+def create_direct_dfa_graph(states, transitions, minimized=False):
     # Convert sets to strings
     # states = [str(state) for state in states]
     # start_state = str(start_state)
@@ -59,7 +59,8 @@ def create_direct_dfa_graph(states, transitions):
             num += 1
 
     for transition in transitions:
-        if transition.symbol != "#":
+        if transition.symbol != "#" and str(transition.originState) in state_nodes and str(transition.destinationState) in state_nodes:
+            # print(transition.originState, transition.symbol, transition.destinationState)
             edge = pydotplus.Edge(
                 state_nodes[str(transition.originState)],
                 state_nodes[str(transition.destinationState)],
@@ -72,7 +73,10 @@ def create_direct_dfa_graph(states, transitions):
     graph = dot
 
     # Save or display the graph
-    png_file_path = "result/direct_dfa.png"
+    if not minimized:
+        png_file_path = "result/direct_dfa.png"
+    else:
+        png_file_path = "result/min_direct_dfa.png"
     graph.write_png(png_file_path)  # Save PNG file
 
 
