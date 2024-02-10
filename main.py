@@ -32,6 +32,6 @@ def main(regex, string):
 
 if __name__ == "__main__":
     main(
-        "(b|b)abb(a|b)",
-        "babba",
+        "(a|b)*abb?",
+        "bab",
     )
