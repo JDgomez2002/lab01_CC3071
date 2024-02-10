@@ -145,33 +145,77 @@ class DFA:
 
             partitions = new_partitions
 
-        # Step 3: Create new states for each partition and update transitions
-        new_states = [DFAState(partition) for partition in partitions]
-        # Update is_accepting for new states and create a mapping from old to new states
+        # Step 3: Adjustments based on DFAState with transitions as a dictionary
+
+        new_states = []  # List to store the new DFAState instances
+        partition_to_new_state = {}  # Mapping of partitions to new DFAState instances
+
+        # Create new DFAState instances for each partition
+        for partition in partitions:
+            new_state = DFAState(
+                set(partition)
+            )  # Initialize with the set of NFA states in the partition
+            new_state.is_accepting = any(state.is_accepting for state in partition)
+            new_states.append(new_state)
+            partition_to_new_state[partition] = new_state
+
+        # Mapping from old DFAState instances to the new DFAState instances
         old_to_new = {}
-        for new_state in new_states:
-            any_state = next(
-                iter(new_state.nfa_states)
-            )  # Any state from the partition to check if it was accepting
-            new_state.is_accepting = any_state.is_accepting
-            for old_state in new_state.nfa_states:
-                old_to_new[old_state] = new_state
+        for old_state in self.states:
+            for partition, new_state in partition_to_new_state.items():
+                if old_state in partition:
+                    old_to_new[old_state] = new_state
+                    break
 
-        # Update transitions for new states
+        # Update transitions for the new DFAState instances
         for new_state in new_states:
             for old_state in new_state.nfa_states:
-                for symbol, state in old_state.transitions.items():
-                    new_state.transitions[symbol] = old_to_new[state]
+                for input_symbol, target_state in old_state.transitions.items():
+                    # Map the target_state to its corresponding new DFAState
+                    if (
+                        target_state in old_to_new
+                    ):  # Ensure target_state is in the mapping
+                        new_target_state = old_to_new[target_state]
+                        new_state.transitions[input_symbol] = new_target_state
 
-        # Identify the new initial and final states
-        new_initial = old_to_new[self.initial_state]
-        new_initial.is_start = True
-        new_final_states = [state for state in new_states if state.is_accepting]
+        # Identify the new initial state and update it as the start state
+        for old_state, new_state in old_to_new.items():
+            if old_state.is_start:
+                new_initial = new_state
+                new_initial.is_start = True
+                break
 
-        # Update the DFA with the minimized information
+        # Update the DFA with the new structure
         self.initial_state = new_initial
-        self.states = new_states
-        self.final_state = new_final_states[0] if new_final_states else None
+        self.states = set(new_states)  # Assuming states are now stored in a set
+
+        # # Step 3: Create new states for each partition and update transitions
+        # new_states = [DFAState(partition) for partition in partitions]
+        # # Update is_accepting for new states and create a mapping from old to new states
+        # old_to_new = {}
+        # for new_state in new_states:
+        #     any_state = next(
+        #         iter(new_state.nfa_states)
+        #     )  # Any state from the partition to check if it was accepting
+        #     new_state.is_accepting = any_state.is_accepting
+        #     for old_state in new_state.nfa_states:
+        #         old_to_new[old_state] = new_state
+
+        # # Update transitions for new states
+        # for new_state in new_states:
+        #     for old_state in new_state.nfa_states:
+        #         for symbol, state in old_state.transitions.items():
+        #             new_state.transitions[symbol] = old_to_new[state]
+
+        # # Identify the new initial and final states
+        # new_initial = old_to_new[self.initial_state]
+        # new_initial.is_start = True
+        # new_final_states = [state for state in new_states if state.is_accepting]
+
+        # # Update the DFA with the minimized information
+        # self.initial_state = new_initial
+        # self.states = new_states
+        # self.final_state = new_final_states[0] if new_final_states else None
 
         # self.remove_dead_states()
 

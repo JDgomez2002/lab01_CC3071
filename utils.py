@@ -1,12 +1,41 @@
+def format(regex):
+    all_operators = ["|", "+", "?", "*"]
+    binary_operators = ["|"]
+    res = ""
+
+    for i in range(len(regex)):
+        c1 = regex[i]
+
+        if i + 1 < len(regex):
+            c2 = regex[i + 1]
+
+            res += c1
+
+            if (
+                c1 != "("
+                and c2 != ")"
+                and c2 not in all_operators
+                and c1 not in binary_operators
+            ):
+                res += "."
+
+    res += regex[-1]
+    return res
+
+
 def shunting_yard(regex):
-    precedence = {"|": 1, ".": 2, "*": 3}
+    precedence = {"|": 1, ".": 2, "*": 3, "+": 3, "?": 3}
     queue = []
     stack = []
 
-    regex = add_concat(regex)
+    regex = format(regex)
+    print(regex)
 
     for token in regex:
-        if token.isalnum() or token == "#":
+        if token.isalnum() or token in [
+            "#",
+            "ϵ",
+        ]:
             queue.append(token)
         elif token == "(":
             stack.append(token)

@@ -28,7 +28,7 @@ class State:
         while stack:
             current_state = stack.pop()
             for transition in current_state.transitions:
-                if transition.input == "e" and transition.new_state not in closure:
+                if transition.input == "ϵ" and transition.new_state not in closure:
                     closure.add(transition.new_state)
                     stack.append(transition.new_state)
         return closure
@@ -56,7 +56,7 @@ class NFA:
             transition.input
             for state in self.states
             for transition in state.transitions
-            if transition.input != "e"  # Exclude epsilon transitions
+            if transition.input != "ϵ"  # Exclude epsilon transitions
         )
 
     def run(self, input_string: str) -> bool:
