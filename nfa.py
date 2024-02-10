@@ -62,15 +62,15 @@ class NFA:
     def run(self, input_string: str) -> bool:
         current_states = self.initial_state.epsilon_closure()
 
-        print(f"Initial states: {[state.id for state in current_states]}")
-        print(
-            f"Accepting states: {[state.id for state in self.states if state.is_accepting]}"
-        )
+        # print(f"Initial states: {[state.id for state in current_states]}")
+        # print(
+        #     f"Accepting states: {[state.id for state in self.states if state.is_accepting]}"
+        # )
 
         for character in input_string:
             # print set of current states ids
-            print(f"Current states: {[state.id for state in current_states]}")
-            print(f"Reading: {character}")
+            # print(f"Current states: {[state.id for state in current_states]}")
+            # print(f"Reading: {character}")
 
             next_states = set()
             for state in current_states:
@@ -82,7 +82,12 @@ class NFA:
             current_states = next_states
 
         # Check if any of the current states is an accepting state
+        # if any(state.is_accepting for state in current_states):
+        #     return "Accepted"
+        
         if any(state.is_accepting for state in current_states):
-            return "Accepted"
+            print(f'NFA simulation with {input_string}: {True}')
+        else:
+            print(f'NFA simulation with {input_string}: {False}')
 
         return "Rejected"

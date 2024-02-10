@@ -16,7 +16,7 @@ class DirectDFATransition:
 
 class DirectDFA:
     def __init__(self, regex):
-        self.states, self.transitions = self.directConstruction(regex)
+        self.states, self.transitions, self.alphabet = self.directConstruction(regex)
 
     def directConstruction(self, regex):
         if regex[-1] != '#':
@@ -67,12 +67,17 @@ class DirectDFA:
             if (statesCounter < len(Dstates)):
                 currentState = Dstates[statesCounter]
         
-        return Dstates, Dtransitions
+        return Dstates, Dtransitions, language
     
     def render(self):
         create_direct_dfa_graph(self.states, self.transitions)
 
     def run(self, string):
+        # Verify if the string has chars that are not in the alphabet
+        for char in string:
+            if char not in self.alphabet:
+                print(f'Direct DFA simulation with {string}: {False}')
+                return False
         if string[-1] != '#':
             string += '#'
         currentState = self.states[0]

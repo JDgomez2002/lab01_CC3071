@@ -75,32 +75,46 @@ class DFA:
         for state in self.states:
             print(state)
 
-    def run(self, input_string: str):
+    def run(self, input_string: str, minimized=False):
         state = self.initial_state
-        print(
-            "Accepting states:",
-            [state.id for state in self.states if state.is_accepting],
-        )
+        # print(
+        #     "Accepting states:",
+        #     [state.id for state in self.states if state.is_accepting],
+        # )
+        [state.id for state in self.states if state.is_accepting]
         for symbol in input_string:
-            print(
-                "Reading:",
-                symbol,
-            )
+            # print(
+            #     "Reading:",
+            #     symbol,
+            # )
             if symbol not in state.transitions:
+                # return "Rejected"
+                if not minimized:
+                    print(f'DFA simulation with {input_string}: {False}')
+                else:
+                    print(f'Minimized DFA simulation with {input_string}: {False}')
                 return "Rejected"
 
-            print(
-                "Current state:",
-                state.id,
-                "Next state:",
-                state.transitions[symbol].id,
-                "Symbol:",
-                symbol,
-            )
+            # print(
+            #     "Current state:",
+            #     state.id,
+            #     "Next state:",
+            #     state.transitions[symbol].id,
+            #     "Symbol:",
+            #     symbol,
+            # )
             state = state.transitions[symbol]
 
-        if state.is_accepting:
-            return "Accepted"
+        if not minimized:
+            if state.is_accepting:
+                print(f'DFA simulation with {input_string}: {True}')
+            else:
+                print(f'DFA simulation with {input_string}: {False}')
+        else:
+            if state.is_accepting:
+                print(f'Minimized DFA simulation with {input_string}: {True}')
+            else:
+                print(f'Minimized DFA simulation with {input_string}: {False}')
 
         return "Rejected"
 
