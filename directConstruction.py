@@ -77,76 +77,131 @@ class DirectDFA:
         for char in string:
             if char not in self.alphabet:
                 if not minimized:
-                    print(f'Direct DFA simulation with {string}: {False}')
+                    print(f'Direct DFA simulation: {False}')
                 else:
-                    print(f'Minimized Direct DFA simulation with {string}: {False}')
+                    print(f'Minimized Direct DFA simulation: {False}')
                 return False
         if string[-1] != '#':
             string += '#'
+
         currentState = self.states[0]
         for char in string:
+            transitionFound = False
             for transition in self.transitions:
                 # print(currentState.state,transition.originState,transition.symbol,'-',char,transition.destinationState)
                 if set(transition.originState) == set(currentState.state) and transition.symbol == char and char != '#':
                     for state in self.states:
                         if state.state == transition.destinationState:
                             currentState = state
+                            transitionFound = True
                             # print('\tEureka!', char, currentState.state)
                             break
                     break
+            if not transitionFound and char != '#':
+                if not minimized:
+                    print(f'Direct DFA simulation: {False}')
+                else:
+                    print(f'Minimized Direct DFA simulation: {False}')
+                return False
         # for transition in self.transitions:
         #     print(transition.symbol, transition.originState, transition.destinationState)
         # for state in self.states:
         #     print(state.state, state.accepting)
         if currentState.accepting:
             if not minimized:
-                print(f'Direct DFA simulation with {string}: {True}')
+                print(f'Direct DFA simulation: {True}')
             else:
-                print(f'Minimized Direct DFA simulation with {string}: {True}')
+                print(f'Minimized Direct DFA simulation: {True}')
             return True
         else: 
             if not minimized:
-                print(f'Direct DFA simulation with {string}: {False}')
+                print(f'Direct DFA simulation: {False}')
             else:
-                print(f'Minimized Direct DFA simulation with {string}: {False}')
+                print(f'Minimized Direct DFA simulation: {False}')
             return False
 
     def minimize(self):
-        P = [[state.state for state in self.states if state.accepting],
-            [state.state for state in self.states if not state.accepting]]
-        W = [state.state for state in self.states if state.accepting]
+        # Step 1: Initialize partitions
+        accepting_states = set()
+        non_accepting_states = set()
+        for state in self.states:
+            if state.accepting:
+                accepting_states.add(state)
+            else:
+                non_accepting_states.add(state)
 
-        while W:
-            A = W.pop()
-            for c in self.alphabet:
-                X = [t.originState for t in self.transitions if t.symbol == c and t.destinationState in A]
-                for Y in P:
-                    if X.intersection(Y) and (Y - X):
-                        P.remove(Y)
-                        P.append(Y - X)
-                        P.append(X.intersection(Y))
-                        if Y in W:
-                            W.remove(Y)
-                            W.append(Y - X)
-                            W.append(X.intersection(Y))
-                        else:
-                            if len(X.intersection(Y)) <= len(Y - X):
-                                W.append(X.intersection(Y))
-                            else:
-                                W.append(Y - X)
+        partitions = [accepting_states, non_accepting_states]
 
-        # Create new states and transitions for the minimized DFA
-        new_states = [DirectDFAState(list(group)[0].state, True, list(group)[0].accepting, list(group)[0].initial) for group in P]
-        print('new_states',new_states)
+        # Step 2: Refine partitions until no change occurs
+        while True:
+            new_partitions = []
+            for partition in partitions:
+                for symbol in self.alphabet:
+                    # Split the partition based on transitions
+                    split_partition = self.split_partition(partition, symbol, partitions)
+                    if split_partition:
+                        new_partitions.extend(split_partition)
+
+            if new_partitions == partitions:
+                break
+            partitions = new_partitions
+
+        # Step 3: Create new states and transitions
+        new_states = []
         new_transitions = []
-        for old_transition in self.transitions:
-            for new_state in new_states:
-                if old_transition.originState in [state.state for state in new_state.state]:
-                    new_originState = new_state
-                if old_transition.destinationState in [state.state for state in new_state.state]:
-                    new_destinationState = new_state
-            new_transitions.append(DirectDFATransition(old_transition.symbol, new_originState, new_destinationState))
 
-        # Replace the old states and transitions with the new ones
-        self.states = new_states
-        self.transitions = new_transitions
+        for i, partition in enumerate(partitions):
+            new_state = DirectDFAState(partition, initial=(i == 0), accepting=(True in {state.accepting for state in partition}))
+            new_states.append(new_state)
+
+        for transition in self.transitions:
+            origin_partition = self.find_partition(transition.originState, partitions)
+            destination_partition = self.find_partition(transition.destinationState, partitions)
+
+            if origin_partition != destination_partition:
+                # Create a new transition between the representative states of the partitions
+                new_transition = DirectDFATransition(transition.symbol, new_states[partitions.index(origin_partition)], new_states[partitions.index(destination_partition)])
+                new_transitions.append(new_transition)
+
+        # Update the DirectDFA instance with minimized states and transitions
+        # self.states = new_states
+        # self.transitions = new_transitions
+
+    def split_partition(self, partition, symbol, partitions):
+        # Helper method to split a partition based on transitions with a given symbol
+        result = []
+
+        if symbol == '#':
+            return [partition]
+
+        for state in partition:
+            transition_found = False
+
+            for other_partition in partitions:
+                for other_state in other_partition:
+                    if state != set() and other_state != set():
+                        # Find the transition corresponding to the current symbol
+                        # origin_transitions = [t for t in self.transitions if set(t.originState) == set(state.state) and t.symbol == symbol]
+                        # destination_transitions = [t for t in self.transitions if set(t.originState) == set(other_state.state) and t.symbol == symbol]
+
+                        # if origin_transitions and destination_transitions and set(origin_transitions[0].destinationState) != set(destination_transitions[0].destinationState):
+                            # Split the partition if the transitions lead to different states
+                            # result.append({state} for state in partition)
+                            transition_found = True
+                            break
+
+            if transition_found:
+                break
+
+            if not transition_found:
+                result.append(partition)
+
+        return result
+
+
+    def find_partition(self, state_set, partitions):
+        # Helper method to find the partition containing a given state set
+        for partition in partitions:
+            if state_set in partition:
+                return partition
+        return None

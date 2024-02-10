@@ -90,9 +90,9 @@ class DFA:
             if symbol not in state.transitions:
                 # return "Rejected"
                 if not minimized:
-                    print(f'DFA simulation with {input_string}: {False}')
+                    print(f'DFA simulation: {False}')
                 else:
-                    print(f'Minimized DFA simulation with {input_string}: {False}')
+                    print(f'Minimized DFA simulation: {False}')
                 return "Rejected"
 
             # print(
@@ -107,14 +107,14 @@ class DFA:
 
         if not minimized:
             if state.is_accepting:
-                print(f'DFA simulation with {input_string}: {True}')
+                print(f'DFA simulation: {True}')
             else:
-                print(f'DFA simulation with {input_string}: {False}')
+                print(f'DFA simulation: {False}')
         else:
             if state.is_accepting:
-                print(f'Minimized DFA simulation with {input_string}: {True}')
+                print(f'Minimized DFA simulation: {True}')
             else:
-                print(f'Minimized DFA simulation with {input_string}: {False}')
+                print(f'Minimized DFA simulation: {False}')
 
         return "Rejected"
 

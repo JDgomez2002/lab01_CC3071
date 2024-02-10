@@ -3,16 +3,22 @@ from directConstruction import DirectDFA
 from render import render_nfa, render_dfa
 from regex_nfa import regex_to_nfa
 from nfa_dfa import nfa_to_dfa
-
+from utils import is_balanced
 
 def main(regex, string):
+    print(f"--- Regex: {regex} ---")
+    if not is_balanced(regex):
+        return
+    print(f"--- Input: {string} ---")
+    if not is_balanced(string):
+        return
     directDFA = DirectDFA(regex)
     directDFA.render()
     directDFA.run(string)
 
-    # directDFA.minimize()
-    # directDFA.render(True)
-    # directDFA.run(string, True)
+    directDFA.minimize()
+    directDFA.render(True)
+    directDFA.run(string, True)
 
     tree = SyntaxTree(regex)
     tree.render()
@@ -31,6 +37,6 @@ def main(regex, string):
 
 if __name__ == "__main__":
     main(
-        "(a|b)*abb?",
-        "bab",
+        "(a|b)+abb+",
+        "aabb",
     )
