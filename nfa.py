@@ -86,8 +86,8 @@ class NFA:
         #     return "Accepted"
         
         if any(state.is_accepting for state in current_states):
-            print(f'NFA simulation with {input_string}: {True}')
+            print(f'NFA simulation: {True}')
         else:
-            print(f'NFA simulation with {input_string}: {False}')
+            print(f'NFA simulation: {False}')
 
         return "Rejected"

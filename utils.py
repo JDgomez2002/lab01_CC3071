@@ -73,3 +73,20 @@ def add_concat(regex):
             output += "."
     output += regex[-1]
     return output
+
+def is_balanced(expression):
+    stack = []
+    for char in expression:
+        if char == '(':
+            stack.append(char)
+        elif char == ')':
+            if not stack or stack.pop() != '(':
+                print("\tError: Unbalanced expression")
+                return False
+    balanced = len(stack) == 0
+    if balanced:
+        return True
+    else:
+        print("\tError: Unbalanced expression")
+        return False
+    # return len(stack) == 0
