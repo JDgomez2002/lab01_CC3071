@@ -74,9 +74,15 @@ def add_concat(regex):
     output += regex[-1]
     return output
 
-def is_balanced(expression):
+def isValidExpression(expression):
     stack = []
+    if expression == "" or expression.isspace():
+        print("\tError: Empty expression")
+        return False
     for char in expression:
+        if not char.isalnum() and char not in {"*", "|", ".", "ϵ", "(", ")", "+", "?"}:
+            print("\tError: Invalid character in expression")
+            return False
         if char == '(':
             stack.append(char)
         elif char == ')':
