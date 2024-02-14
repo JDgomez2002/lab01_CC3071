@@ -19,8 +19,9 @@ class DirectDFA:
         self.states, self.transitions, self.alphabet = self.directConstruction(regex)
 
     def directConstruction(self, regex):
-        if regex[-1] != '#':
-            regex += '#' # add # to the end of the regex
+        regex = (
+            "(" + regex + ")#"
+        )
         Dstates = []
         Dtransitions = []
         tree = SyntaxTree(regex)
