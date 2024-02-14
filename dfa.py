@@ -159,12 +159,9 @@ class DFA:
 
             partitions = new_partitions
 
-        # Step 3: Adjustments based on DFAState with transitions as a dictionary
+        new_states = []
+        partition_to_new_state = {}
 
-        new_states = []  # List to store the new DFAState instances
-        partition_to_new_state = {}  # Mapping of partitions to new DFAState instances
-
-        # Create new DFAState instances for each partition
         for partition in partitions:
             new_state = DFAState(
                 set(partition)

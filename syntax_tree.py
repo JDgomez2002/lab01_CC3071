@@ -7,6 +7,7 @@ class SyntaxTree:
     def __init__(self, regex):
         self.operands = self.getOperands(regex)
         self.regex = shunting_yard(regex)
+        print("shunting_yard", self.regex)
         self.root = self.syntax_tree(self.regex)
         self.node_map = populate_node_map(self.root)
         calc_nullable(self.root)
@@ -60,7 +61,9 @@ node_map = {}
 def populate_node_map(node):
     if node is None:
         return
+
     if node.value not in {"*", "|", ".", "+", "?"}:  # Leaf node
+        print(node.id, node.value)
         node_map[node.id] = node
     # Recursively populate the map for all nodes
     populate_node_map(node.left)

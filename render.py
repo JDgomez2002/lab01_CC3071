@@ -124,8 +124,8 @@ def render_dfa(dfa, name="dfa"):
     seen_states = set()
 
     for dfa_state in dfa.states:
-        # If the state has no transitions, skip it
-        if not dfa_state.transitions:
+        # If the state has no transitions and it's not an accepting state, skip it
+        if not dfa_state.transitions and not dfa_state.is_accepting:
             continue
 
         if dfa_state.id not in seen_states:

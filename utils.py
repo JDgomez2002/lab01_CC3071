@@ -29,7 +29,7 @@ def shunting_yard(regex):
     stack = []
 
     regex = format(regex)
-    # print("regex", regex)
+    print("regex", regex)
 
     for token in regex:
         if token.isalnum() or token in [
@@ -74,13 +74,14 @@ def add_concat(regex):
     output += regex[-1]
     return output
 
+
 def is_balanced(expression):
     stack = []
     for char in expression:
-        if char == '(':
+        if char == "(":
             stack.append(char)
-        elif char == ')':
-            if not stack or stack.pop() != '(':
+        elif char == ")":
+            if not stack or stack.pop() != "(":
                 print("\tError: Unbalanced expression")
                 return False
     balanced = len(stack) == 0

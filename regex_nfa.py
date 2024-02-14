@@ -4,9 +4,7 @@ from nfa import NFA, State, Transition
 
 def regex_to_nfa(regex: str) -> NFA:
     nfa_stack = []
-    expression = shunting_yard(
-        regex
-    )  # Assume shunting_yard correctly handles the regex
+    expression = shunting_yard(regex)
 
     for token in expression:
         if token.isalnum() or token == "ϵ":

@@ -5,6 +5,7 @@ from regex_nfa import regex_to_nfa
 from nfa_dfa import nfa_to_dfa
 from utils import is_balanced
 
+
 def main(regex, string):
     print(f"--- Regex: {regex} ---")
     if not is_balanced(regex):
@@ -16,27 +17,28 @@ def main(regex, string):
     directDFA.render()
     directDFA.run(string)
 
-    directDFA.minimize()
-    directDFA.render(True)
-    directDFA.run(string, True)
+    # directDFA.minimize()
+    # directDFA.render(True)
+    # directDFA.run(string, True)
 
-    tree = SyntaxTree(regex)
-    tree.render()
+    # tree = SyntaxTree(regex)
+    # tree.render()
 
-    nfa = regex_to_nfa(regex)
-    render_nfa(nfa)
-    dfa = nfa_to_dfa(nfa)
-    render_dfa(dfa)
+    # nfa = regex_to_nfa(regex)
+    # render_nfa(nfa)
+    # dfa = nfa_to_dfa(nfa)
+    # render_dfa(dfa)
 
-    nfa.run(string)
-    dfa.run(string)
+    # nfa.run(string)
+    # dfa.run(string)
 
-    dfa.minimize()
-    render_dfa(dfa, "min_dfa")
-    dfa.run(string, True)
+    # dfa.minimize()
+    # render_dfa(dfa, "min_dfa")
+    # dfa.run(string, True)
+
 
 if __name__ == "__main__":
     main(
-        "(a|b)+abb+",
-        "aabb",
+        "(a|b)|(c|d)",
+        "a",
     )
