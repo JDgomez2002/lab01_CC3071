@@ -36,17 +36,15 @@ class DirectDFA:
                 nodeSet = {'Ø'}
             nodeValueAndFollowpos.append([k, v.value, nodeSet])
 
-        for node in nodeValueAndFollowpos: # for every node in nodeValueAndFollowpos
-            print(f'Node: {node[0]}, Value: {node[1]}, Followpos: {node[2]}')
+        # for node in nodeValueAndFollowpos: # for every node in nodeValueAndFollowpos
+        #     print(f'Node: {node[0]}, Value: {node[1]}, Followpos: {node[2]}')
 
         statesCounter = 0
         currentState = Dstates[statesCounter] # set current state to the first state in Dstates before entering while
 
         while ( any(not state.marked for state in Dstates) ): # if are any unmarked (False) state in Dstates
             currentState.marked = True # mark current state as marked (True)
-            print(f'language: {language}')
             for symbol in language: # for every symbol in the operands of the regex
-                print(f'Current state: {currentState.state}, Symbol: {symbol}')
                 newState = set() # create a new set for the new state
                 for node in currentState.state: # for every follow pos in the current state
                     if isinstance(node, int): # if the node is a digit
