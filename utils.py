@@ -29,7 +29,13 @@ def shunting_yard(regex):
     stack = []
 
     regex = format(regex)
-    # print("regex", regex)
+
+    # CHAPUS
+    hasHash = False
+    if "#" in regex:
+        hasHash = True
+        regex = regex.replace("#", "")
+    # CHAPUS
 
     for token in regex:
         if token.isalnum() or token in [
@@ -55,7 +61,17 @@ def shunting_yard(regex):
     while stack:
         queue.append(stack.pop())
 
-    return "".join(queue)
+    # CHAPUS
+    print('regex:', regex)
+    result = "".join(queue)
+    result = result.replace("|.|", "||")
+    if hasHash:
+        result += "#." # Add the # to the end of the expression
+    # CHAPUS
+
+    print('result:', result)
+
+    return result
 
 
 def add_concat(regex):
