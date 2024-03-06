@@ -24,9 +24,13 @@ class DirectDFA:
     def directConstruction(self, regex):
         regex = (
             "(" + regex + ")#"
+<<<<<<< HEAD
         )  # wrap in parentheses and add # to the end of the regex
         print("before postfix and tree", regex)
         # rest of the code
+=======
+        )
+>>>>>>> 7c9c9caf8bb563e54fa2d2c1f9397b7754d1c25a
         Dstates = []
         Dtransitions = []
         tree = SyntaxTree(regex)
@@ -48,14 +52,20 @@ class DirectDFA:
                 nodeSet = {"Ø"}
             nodeValueAndFollowpos.append([k, v.value, nodeSet])
 
+<<<<<<< HEAD
         for node in nodeValueAndFollowpos:  # for every node in nodeValueAndFollowpos
             print(f"Node: {node[0]}, Value: {node[1]}, Followpos: {node[2]}")
+=======
+        # for node in nodeValueAndFollowpos: # for every node in nodeValueAndFollowpos
+        #     print(f'Node: {node[0]}, Value: {node[1]}, Followpos: {node[2]}')
+>>>>>>> 7c9c9caf8bb563e54fa2d2c1f9397b7754d1c25a
 
         statesCounter = 0
         currentState = Dstates[
             statesCounter
         ]  # set current state to the first state in Dstates before entering while
 
+<<<<<<< HEAD
         while any(
             not state.marked for state in Dstates
         ):  # if are any unmarked (False) state in Dstates
@@ -72,6 +82,16 @@ class DirectDFA:
                             newState = newState.union(
                                 nodeValueAndFollowpos[node - 1][2]
                             )  # add the follow pos of the node to the new state
+=======
+        while ( any(not state.marked for state in Dstates) ): # if are any unmarked (False) state in Dstates
+            currentState.marked = True # mark current state as marked (True)
+            for symbol in language: # for every symbol in the operands of the regex
+                newState = set() # create a new set for the new state
+                for node in currentState.state: # for every follow pos in the current state
+                    if isinstance(node, int): # if the node is a digit
+                        if symbol == nodeValueAndFollowpos[node-1][1]: # if the symbol matches the value of the node
+                            newState = newState.union(nodeValueAndFollowpos[node-1][2]) # add the follow pos of the node to the new state
+>>>>>>> 7c9c9caf8bb563e54fa2d2c1f9397b7754d1c25a
                     else:
                         newState = {
                             "Ø"

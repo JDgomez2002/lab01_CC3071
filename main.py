@@ -34,7 +34,7 @@ def main(regex, string):
 
     dfa.minimize()
     render_dfa(dfa, "min_dfa")
-    # dfa.run(string, True)
+    dfa.run(string, True)
 
 
 if __name__ == "__main__":
