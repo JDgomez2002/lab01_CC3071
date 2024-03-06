@@ -48,6 +48,9 @@ class DirectDFA:
                 nodeSet = {"Ø"}
             nodeValueAndFollowpos.append([k, v.value, nodeSet])
 
+        for node in nodeValueAndFollowpos:  # for every node in nodeValueAndFollowpos
+            print(f"Node: {node[0]}, Value: {node[1]}, Followpos: {node[2]}")
+
         statesCounter = 0
         currentState = Dstates[
             statesCounter
