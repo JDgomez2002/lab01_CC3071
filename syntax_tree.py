@@ -1,13 +1,14 @@
 from node import Node
-from utils import shunting_yard
+
+# from utils import shunting_yard
 from render import render_tree
 
 
 class SyntaxTree:
     def __init__(self, regex):
         self.operands = self.getOperands(regex)
-        self.regex = shunting_yard(regex)
-        print("shunting_yard", self.regex)
+        # self.regex = shunting_yard(regex)
+        self.regex = regex
         self.root = self.syntax_tree(self.regex)
         self.node_map = populate_node_map(self.root)
         calc_nullable(self.root)
@@ -18,24 +19,13 @@ class SyntaxTree:
     def syntax_tree(self, expression):
         stack = []
         for char in expression:
-            if char not in {"*", "|", ".", "+", "?"}:
+            if char not in {"*", "|", "."}:
                 stack.append(Node(char))
             else:
                 if char == "*":
                     operand = stack.pop()
                     stack.append(Node(char, operand))
-                elif char == "+":
-                    operand = stack.pop()
-                    # same as op.op*
-                    kleene_star_node = Node("*", operand)
-                    concatenation_node = Node(".", operand, kleene_star_node)
-                    stack.append(concatenation_node)
-                elif char == "?":
-                    operand = stack.pop()
-                    # same as op | ϵ
-                    epsilon_node = Node("ϵ")
-                    alternation_node = Node("|", operand, epsilon_node)
-                    stack.append(alternation_node)
+
                 else:
                     right = stack.pop()
                     left = stack.pop()
@@ -46,7 +36,7 @@ class SyntaxTree:
     def getOperands(self, regex):
         operands = set()
         for char in regex:
-            if char not in {"*", "|", ".", "ϵ", "(", ")", "+", "?"}:
+            if char not in {"*", "|", ".", "ϵ", "(", ")"}:
                 operands.add(char)
         return operands
 
@@ -62,8 +52,7 @@ def populate_node_map(node):
     if node is None:
         return
 
-    if node.value not in {"*", "|", ".", "+", "?"}:  # Leaf node
-        print(node.id, node.value)
+    if node.value not in {"*", "|", ".", "?"}:  # Leaf node
         node_map[node.id] = node
     # Recursively populate the map for all nodes
     populate_node_map(node.left)

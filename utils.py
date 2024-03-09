@@ -1,3 +1,19 @@
+def print_definitions(definitions):
+    print("Definitions: ")
+    for name, value in definitions.items():
+        print(f"{name} = {value}")
+
+    print("\n")
+
+
+def print_rules(rules):
+    print("Rules: ")
+    for name, value in rules.items():
+        print(f"{value}")
+
+    print("\n")
+
+
 def format(regex):
     all_operators = ["|", "+", "?", "*"]
     binary_operators = ["|"]
@@ -29,9 +45,6 @@ def shunting_yard(regex):
     stack = []
 
     regex = format(regex)
-<<<<<<< HEAD
-    print("regex", regex)
-=======
 
     # CHAPUS
     hasHash = False
@@ -39,7 +52,6 @@ def shunting_yard(regex):
         hasHash = True
         regex = regex.replace("#", "")
     # CHAPUS
->>>>>>> 7c9c9caf8bb563e54fa2d2c1f9397b7754d1c25a
 
     for token in regex:
         if token.isalnum() or token in [
@@ -66,14 +78,14 @@ def shunting_yard(regex):
         queue.append(stack.pop())
 
     # CHAPUS
-    print('regex:', regex)
+    print("regex:", regex)
     result = "".join(queue)
     result = result.replace("|.|", "||")
     if hasHash:
-        result += "#." # Add the # to the end of the expression
+        result += "#."  # Add the # to the end of the expression
     # CHAPUS
 
-    print('result:', result)
+    print("result:", result)
 
     return result
 
@@ -94,25 +106,17 @@ def add_concat(regex):
     output += regex[-1]
     return output
 
-<<<<<<< HEAD
 
-def is_balanced(expression):
-=======
 def isValidExpression(expression):
->>>>>>> 244855016dbf3342e5dfd1a973f6c3e8f9d33530
     stack = []
     if expression == "" or expression.isspace():
         print("\tError: Empty expression")
         return False
     for char in expression:
-<<<<<<< HEAD
-        if char == "(":
-=======
         if not char.isalnum() and char not in {"*", "|", ".", "ϵ", "(", ")", "+", "?"}:
             print("\tError: Invalid character in expression")
             return False
-        if char == '(':
->>>>>>> 244855016dbf3342e5dfd1a973f6c3e8f9d33530
+        if char == "(":
             stack.append(char)
         elif char == ")":
             if not stack or stack.pop() != "(":

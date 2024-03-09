@@ -1,4 +1,7 @@
+from Regex import Regex
+from Yalex import Yalex
 from syntax_tree import SyntaxTree
+
 from directConstruction import DirectDFA
 from render import render_nfa, render_dfa
 from regex_nfa import regex_to_nfa
@@ -6,39 +9,25 @@ from nfa_dfa import nfa_to_dfa
 from utils import isValidExpression
 
 
-def main(regex, string):
-    print(f"--- Regex: {regex} ---")
-    if not isValidExpression(regex):
-        return
-    print(f"--- Input: {string} ---")
-    if not isValidExpression(string):
-        return
-    directDFA = DirectDFA(regex)
-    directDFA.render()
-    directDFA.run(string)
+def main():
+    yal = Yalex("examples/slr-3-3.yal")
+    postfix = Regex(yal.final_regex).shunting_yard()
+    print(yal.final_regex)
+    ast = SyntaxTree(postfix)
+    ast.render()
 
-    directDFA.minimize()
-    directDFA.render(True)
-    directDFA.run(string, True)
+    # nfa = regex_to_nfa(regex)
+    # render_nfa(nfa)
+    # dfa = nfa_to_dfa(nfa)
+    # render_dfa(dfa)
 
-    tree = SyntaxTree(regex)
-    tree.render()
+    # nfa.run(string)
+    # dfa.run(string)
 
-    nfa = regex_to_nfa(regex)
-    render_nfa(nfa)
-    dfa = nfa_to_dfa(nfa)
-    render_dfa(dfa)
-
-    nfa.run(string)
-    dfa.run(string)
-
-    dfa.minimize()
-    render_dfa(dfa, "min_dfa")
-    dfa.run(string, True)
+    # dfa.minimize()
+    # render_dfa(dfa, "min_dfa")
+    # dfa.run(string, True)
 
 
 if __name__ == "__main__":
-    main(
-        "(a|b)|(c|d)",
-        "b",
-    )
+    main()

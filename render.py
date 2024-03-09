@@ -1,3 +1,5 @@
+import re
+import string
 import pydotplus
 
 
@@ -8,10 +10,51 @@ def render_tree(root):
     return graph
 
 
+counter = [0]  # Use a list so that the counter is mutable
+
+
 def add_edges(graph, node, parent_id=None):
     if node is not None:
-        node_id = str(id(node))
-        graph.add_node(pydotplus.Node(node_id, label=str(node), shape="circle"))
+        node_id = str(counter[0])
+        counter[0] += 1
+
+        # if node value is whitespace, newline or tab, replace it with the corresponding escape sequence
+
+        if (len(node.value)) == 1:
+            # if its printable leave it as it is
+
+            if node.value in {
+                ",",
+                "(",
+                ")",
+                "*",
+                "+",
+                ".",
+                "|",
+                "?",
+                "\\",
+                "[",
+                "]",
+                "{",
+                "}",
+                "^",
+                "$",
+                "-",
+            }:
+                node.value = "\\" + node.value
+        elif len(node.value) > 1:
+            # if it has \ before it, remove it
+            if node.value[0] == "\\":
+                node.value = node.value[1:]
+            # if its tab or space replace with "SPACE" or "TAB"
+            if node.value == " ":
+                node.value = "SPACE"
+            elif node.value == "\t":
+                node.value = "TAB"
+
+        # if node.value in {"(", ")", "*", "+", ".", "|"}:
+        #     node.value = "\\" + node.value
+        graph.add_node(pydotplus.Node(node_id, label=node.value, shape="circle"))
         if parent_id is not None:
             graph.add_edge(pydotplus.Edge(parent_id, node_id))
         add_edges(graph, node.left, node_id)
